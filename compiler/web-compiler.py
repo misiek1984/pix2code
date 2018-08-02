@@ -4,7 +4,7 @@ __author__ = 'Tony Beltramelli - www.tonybeltramelli.com'
 
 import sys
 
-from os.path import basename
+from os.path import basename, dirname
 from classes.Utils import *
 from classes.Compiler import *
 
@@ -13,6 +13,7 @@ if __name__ == "__main__":
     length = len(argv)
     if length != 0:
         input_file = argv[0]
+        output_file = None if len(argv) < 2 else argv[1]
     else:
         print("Error: not enough argument supplied:")
         print("web-compiler.py <path> <file name>")
@@ -36,10 +37,10 @@ def render_content_with_text(key, value):
                                   Utils.get_random_text(length_text=56, space_number=7, with_upper_case=False))
     return value
 
-file_uid = basename(input_file)[:basename(input_file).find(".")]
-path = input_file[:input_file.find(file_uid)]
+file_uid = basename(input_file)[:basename(input_file).rfind(".")]
+path = dirname(input_file)
 
-input_file_path = "{}{}.gui".format(path, file_uid)
-output_file_path = "{}{}.html".format(path, file_uid)
+input_file_path = "{}/{}.gui".format(path, file_uid)
+output_file_path = "{}/{}.html".format(path, file_uid) if output_file == None else output_file
 
 compiler.compile(input_file_path, output_file_path, rendering_function=render_content_with_text)

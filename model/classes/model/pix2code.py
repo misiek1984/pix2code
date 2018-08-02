@@ -12,9 +12,13 @@ from .AModel import *
 
 
 class pix2code(AModel):
-    def __init__(self, input_shape, output_size, output_path):
+    def __init__(self, input_shape, output_size, output_path, model=None):
         AModel.__init__(self, input_shape, output_size, output_path)
         self.name = "pix2code"
+
+        if not model is None:
+            self.model = model
+            return
 
         image_model = Sequential()
         image_model.add(Conv2D(32, (3, 3), padding='valid', activation='relu', input_shape=input_shape))
@@ -62,11 +66,15 @@ class pix2code(AModel):
         self.model.compile(loss='categorical_crossentropy', optimizer=optimizer)
 
     def fit(self, images, partial_captions, next_words):
-        self.model.fit([images, partial_captions], next_words, shuffle=False, epochs=EPOCHS, batch_size=BATCH_SIZE, verbose=1)
+        callbacks_list = self.configure_callbacks();
+        self.save(True)
+        self.model.fit([images, partial_captions], next_words, shuffle=False, epochs=EPOCHS, batch_size=BATCH_SIZE, callbacks=callbacks_list, verbose=1)
         self.save()
 
     def fit_generator(self, generator, steps_per_epoch):
-        self.model.fit_generator(generator, steps_per_epoch=steps_per_epoch, epochs=EPOCHS, verbose=1)
+        callbacks_list = self.configure_callbacks();
+        self.save(True)
+        self.model.fit_generator(generator, steps_per_epoch=steps_per_epoch, epochs=EPOCHS, callbacks=callbacks_list, verbose=1)
         self.save()
 
     def predict(self, image, partial_caption):
